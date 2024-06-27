@@ -1,15 +1,15 @@
 import 'package:example/features/pixel/pixel_state_manager.dart';
 import 'package:take_it/take_it.dart';
 
-class PixelDiModule extends LocalScopeDiModule {
+class PixelDiModule extends DiModule {
   @override
-  Initializer get initializer => Initializer.sync((scope) {
-        scope.registerSingleton(
-            PixelStateManager(
-              redValueStorage: get(),
-              greenValueStorage: get(),
-              blueValueStorage: get(),
-            ),
-            dispose: (instance) => instance.dispose());
-      });
+  void setup(SyncRegistrar it) {
+    it.registerSingleton(
+        PixelStateManager(
+          redValueStorage: get(),
+          greenValueStorage: get(),
+          blueValueStorage: get(),
+        ),
+        dispose: (instance) => instance.dispose());
+  }
 }

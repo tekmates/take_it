@@ -1,4 +1,4 @@
-import 'package:take_it/src/di_module/base_di_module.dart';
+import 'package:get_it/get_it.dart';
 import 'package:take_it/src/registrar/sync_registrar.dart';
 
 class SyncRegistrarImpl implements SyncRegistrar {

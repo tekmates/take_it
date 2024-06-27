@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 abstract class StateManager<T> {
   T _state;
 
@@ -19,6 +21,7 @@ abstract class StateManager<T> {
   }
 
   void dispose() {
+    debugPrint("dispose");
     _stateController.close();
   }
 }

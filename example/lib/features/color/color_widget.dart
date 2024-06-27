@@ -3,7 +3,11 @@ import 'package:example/features/color/color_state_manager.dart';
 import 'package:flutter/material.dart';
 
 class ColorWidget extends StatelessWidget {
-  const ColorWidget(this.stateManager, {super.key});
+
+  const ColorWidget(
+    this.stateManager, {
+    super.key,
+  });
 
   final ColorStateManager stateManager;
 

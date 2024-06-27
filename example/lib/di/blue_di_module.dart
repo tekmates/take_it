@@ -4,19 +4,20 @@ import 'package:example/features/color/incrementer.dart';
 import 'package:example/features/pixel/value_storages.dart';
 import 'package:take_it/take_it.dart';
 
-class BlueDiModule extends LocalScopeDiModule {
+class BlueDiModule extends DiModule {
   @override
-  Initializer get initializer => Initializer.sync((scope) {
-        scope
-          ..registerFactory<Decrementer>(
-              create: () => DecrementerImpl(get<BlueValueStorage>()))
-          ..registerFactory<Incrementer>(
-              create: () => IncrementerImpl(get<BlueValueStorage>()))
-          ..registerSingleton(
-              ColorStateManager(
-                  decrementer: get<Decrementer>(),
-                  incrementer: get(),
-                  valueStorage: get<BlueValueStorage>()),
-              dispose: (instance) => instance.dispose());
-      });
+  void setup(SyncRegistrar it) {
+    it
+      ..registerFactory<Decrementer>(
+          create: () => DecrementerImpl(get<BlueValueStorage>()))
+      ..registerFactory<Incrementer>(
+          create: () => IncrementerImpl(get<BlueValueStorage>()))
+      ..registerSingleton(
+          ColorStateManager(
+              decrementer: get<Decrementer>(),
+              incrementer: get(),
+              valueStorage: get<BlueValueStorage>()),
+          dispose: (instance) => instance.dispose())
+      ..registerFactory<String>(create: () => "1");
+  }
 }

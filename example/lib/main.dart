@@ -17,13 +17,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'take_it Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
-    );
+    return DiScopeBuilder(
+        createModule: () => CoreDiModule(),
+        initializationPlaceholder: Center(child: CircularProgressIndicator()),
+        builder: (context, scope) {
+          return MaterialApp(
+            title: 'take_it Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: const MyHomePage(),
+          );
+        });
   }
 }
 
@@ -37,35 +42,30 @@ class MyHomePage extends StatelessWidget {
         title: const Text("take_it Demo"),
       ),
       body: Center(
-        child: DiScopeBuilder(
-            createModule: () => CoreDiModule(),
-            initializationPlaceholder: CircularProgressIndicator(),
-            builder: (context, scope) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Pixel settings",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  DiScopeBuilder(
-                    createModule: () => RedDiModule(),
-                    builder: (context, scope) => ColorWidget(scope.get()),
-                  ),
-                  DiScopeBuilder(
-                    createModule: () => GreenDiModule(),
-                    builder: (context, scope) => ColorWidget(scope.get()),
-                  ),
-                  DiScopeBuilder(
-                    createModule: () => BlueDiModule(),
-                    builder: (context, scope) => ColorWidget(scope.get()),
-                  ),
-                ],
-              );
-            }),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Pixel settings",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            DiScopeBuilder(
+              createModule: () => RedDiModule(),
+              builder: (context, scope) => ColorWidget(scope.get()),
+            ),
+            DiScopeBuilder(
+              createModule: () => GreenDiModule(),
+              builder: (context, scope) => ColorWidget(scope.get()),
+            ),
+            DiScopeBuilder(
+              createModule: () => BlueDiModule(),
+              builder: (context, scope) => ColorWidget(scope.get()),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Text("Pixel"),
