@@ -1,22 +1,22 @@
-import 'package:get_it/get_it.dart';
+import 'package:take_it/src/di_container/di_container.dart';
 import 'package:take_it/src/registrar/sync_registrar.dart';
 
 class SyncRegistrarImpl implements SyncRegistrar {
   const SyncRegistrarImpl(this._getIt);
 
-  final GetIt _getIt;
+  final DiContainer _getIt;
 
   @override
-  void registerFactory<T extends Object>(
-      {required CreateFunc<T> create, String? instanceName}) {
-    return _getIt.registerFactory<T>(create, instanceName: instanceName);
+  void registerFactory<T extends Object>(CreateFunc<T> create) {
+    return _getIt.registerFactory<T>(create);
   }
 
   @override
   void registerLazySingleton<T extends Object>(
-      {required CreateFunc<T> create,
-      String? instanceName,
-      DisposeFunc<T>? dispose}) {
+    CreateFunc<T> create, {
+    String? instanceName,
+    DisposeFunc<T>? dispose,
+  }) {
     return _getIt.registerLazySingleton<T>(
       create,
       instanceName: instanceName,

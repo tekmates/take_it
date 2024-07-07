@@ -6,13 +6,13 @@ class CoreDiModule extends DiModuleAsync {
   @override
   Future<void> setup(AsyncRegistrar it) async {
     debugPrint("di_log start init core");
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 5));
     debugPrint("di_log delayed init core");
     it
       ..registerSingletonAsync(
-        create: () async {
+        () async {
           debugPrint("di_log registerSingletonAsync");
-          await Future.delayed(Duration(seconds: 1));
+          await Future.delayed(Duration(seconds: 5));
           debugPrint("di_log await registerSingletonAsync");
           return RedValueStorage();
         },
@@ -21,8 +21,8 @@ class CoreDiModule extends DiModuleAsync {
         GreenValueStorage(),
       )
       ..registerLazySingleton(
-        create: () => BlueValueStorage(),
+        () => BlueValueStorage(),
       )
-    ..registerFactory<String>(create: ()=>"3");
+      ..registerFactory<String>(() => "3");
   }
 }

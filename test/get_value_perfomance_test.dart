@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:take_it/src/di_module/base_di_module.dart';
-import 'package:take_it/src/di_scope_builder.dart';
 import 'package:take_it/src/registrar/sync_registrar.dart';
 
 void main() {
@@ -29,12 +28,12 @@ void main() {
         final value = scope.get<_ValueClass1>().value;
         sw.stop();
         log("ComparisonTestFor containers: $containerCount scopeCount: $scopeCount");
-        log('FluDI 1: ${sw.elapsedMicroseconds}');
+        log('TakeIt 1: ${sw.elapsedMicroseconds}');
         final sw2 = Stopwatch()..start();
         // ignore: unused_local_variable
         final value2 = scope.get<_ValueClass2>().value;
         sw2.stop();
-        log('FluDI 2: ${sw2.elapsedMicroseconds}');
+        log('TakeIt 2: ${sw2.elapsedMicroseconds}');
         return Text(value);
       },
     );
@@ -42,20 +41,16 @@ void main() {
     Widget getItWidget = Builder(
       builder: (context) {
         final sw = Stopwatch()..start();
-        if(getIt.isRegistered<_ValueClass1>()) {
+        if (getIt.isRegistered<_ValueClass1>()) {
           // ignore: unused_local_variable
-          final value = getIt
-              .get<_ValueClass1>()
-              .value;
+          final value = getIt.get<_ValueClass1>().value;
           sw.stop();
           log('GetIt 1: ${sw.elapsedMicroseconds}');
         }
         final sw2 = Stopwatch()..start();
-        if(getIt.isRegistered<_ValueClass2>()) {
+        if (getIt.isRegistered<_ValueClass2>()) {
           // ignore: unused_local_variable
-          final value2 = getIt
-              .get<_ValueClass2>()
-              .value;
+          final value2 = getIt.get<_ValueClass2>().value;
           sw2.stop();
           log('GetIt 2: ${sw2.elapsedMicroseconds}');
         }
@@ -178,8 +173,8 @@ class _ValueDiModule extends DiModule {
   @override
   void setup(SyncRegistrar it) {
     it
-      ..registerFactory<_ValueClass1>(create: () => _ValueClass1(value))
-      ..registerFactory<_ValueClass2>(create: () => _ValueClass2(value));
+      ..registerFactory<_ValueClass1>(() => _ValueClass1(value))
+      ..registerFactory<_ValueClass2>(() => _ValueClass2(value));
   }
 }
 

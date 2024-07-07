@@ -9,9 +9,9 @@ class RedDiModule extends DiModule {
   void setup(SyncRegistrar it) {
     it
       ..registerFactory<Decrementer>(
-          create: () => DecrementerImpl(get<RedValueStorage>()))
+          () => DecrementerImpl(get<RedValueStorage>()))
       ..registerFactory<Incrementer>(
-          create: () => IncrementerImpl(get<RedValueStorage>()))
+          () => IncrementerImpl(get<RedValueStorage>()))
       ..registerSingleton(
           ColorStateManager(
               decrementer: get<Decrementer>(),

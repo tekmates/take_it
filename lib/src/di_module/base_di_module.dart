@@ -1,57 +1,58 @@
 // ignore_for_file: avoid_annotating_with_dynamic
 
-import 'package:get_it/get_it.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:take_it/src/di_container/di_container.dart';
 import 'package:take_it/src/registrar/async_registrar_impl.dart';
 import 'package:take_it/src/registrar/sync_registrar_impl.dart';
 import 'package:take_it/take_it.dart';
 
-part 'di_module.dart';
+part '../di_scope_builder.dart';
 
+part 'di_module.dart';
 
 part 'di_module_async.dart';
 
-sealed class BaseDiModule implements IDiModule {
+sealed class BaseDiModule extends ChangeNotifier implements IDiModule {
   BaseDiModule({
     this.dependencies = const {},
   });
 
-  GetIt _serviceLocator = GetIt.asNewInstance();
+  DiContainer _diContainer = DiContainer();
 
   final Set<BaseDiModule> dependencies;
 
-  final Set<BaseDiModule> _parents = {};
-
-  Future<void> init() async {
+  Future<void> _initAsync() async {
     for (final dependency in dependencies) {
-      dependency._serviceLocator = _serviceLocator;
-      await dependency.init();
+      dependency._diContainer = _diContainer;
+      await dependency._initAsync();
     }
     final module = this;
     if (module is DiModule) {
-      module.setup(SyncRegistrarImpl(_serviceLocator));
+      module.setup(SyncRegistrarImpl(_diContainer));
     } else if (module is DiModuleAsync) {
-      await module.setup(AsyncRegistrarImpl(_serviceLocator));
+      await module.setup(AsyncRegistrarImpl(_diContainer));
     } else {
       throw Exception(
           "${module.runtimeType} must extend SyncDiModule or AsyncDiModule.");
     }
-    await _serviceLocator.allReady();
+    await _diContainer.allReady();
   }
 
-  void _init(Function() onInit) {
+  void _init(Function() onInit, {bool isNeedNotify = true}) {
     final query = <BaseDiModule>{};
     for (final dependency in dependencies) {
       query.add(dependency);
-      dependency._serviceLocator = _serviceLocator;
-      dependency._init(() => query.remove(dependency));
+      dependency._diContainer = _diContainer;
+      dependency._init(() => query.remove(dependency), isNeedNotify: false);
     }
     final module = this;
     if (module is DiModule) {
-      module.setup(SyncRegistrarImpl(_serviceLocator));
+      module.setup(SyncRegistrarImpl(_diContainer));
       _initContinue(query, onInit);
     } else if (module is DiModuleAsync) {
-      module.setup(AsyncRegistrarImpl(_serviceLocator)).then(
-            (_) => _serviceLocator.allReady().then(
+      module.setup(AsyncRegistrarImpl(_diContainer)).then(
+            (_) => _diContainer.allReady().then(
                   (_) => _initContinue(query, onInit),
                 ),
           );
@@ -59,58 +60,58 @@ sealed class BaseDiModule implements IDiModule {
       throw Exception(
           "${module.runtimeType} must extend SyncDiModule or AsyncDiModule.");
     }
+    if (isNeedNotify) _notify();
+  }
+
+  void _notify() {
+    notifyListeners();
   }
 
   void _initContinue(Set<BaseDiModule> query, Function() onInit) {
     if (query.isNotEmpty) {
-      _serviceLocator.allReady().then((value) => onInit());
+      _diContainer.allReady().then((value) => onInit());
     } else {
       onInit();
     }
   }
 
-  void pushScope(Function() onInit, BaseDiModule? parent) {
+  void _pushScope(Function() onInit, BaseDiModule? parent) {
     if (parent != null) {
-      _parents.add(parent);
-      _parents.addAll(parent._parents);
+      _diContainer = DiContainer.fromScope(parent._diContainer);
     }
-    _init(onInit);
+
+    _init(onInit, isNeedNotify: false);
   }
 
-  Future<void> popScope() async {
-    await reset();
+  void _updateScope(BaseDiModule? parent) {
+    _diContainer.updateScope(parent?._diContainer);
   }
 
-  @override
-  Future<void> reset() async {
-    await _serviceLocator.reset();
+  Future<void> _popScope() async {
+    await _reset(isNeedNotify: false);
   }
 
-  List<GetIt> get _scope =>
-      [_serviceLocator, ..._parents.map((e) => e._serviceLocator)];
+  Future<void> _reset({bool isNeedNotify = true}) async {
+    await _diContainer.reset();
+    if (isNeedNotify) _notify();
+  }
+
+  @visibleForTesting
+  Future<void> resetTest() {
+    return _reset();
+  }
 
   @override
   bool isRegistered<T extends Object>() {
-    for (var serviceLocator in _scope) {
-      if (serviceLocator.isRegistered<T>()) return true;
-    }
-    return false;
+    return _diContainer.isRegistered<T>();
   }
 
   @override
   T get<T extends Object>({
-    String? instanceName,
-    dynamic param1,
-    dynamic param2,
+    dynamic param,
   }) {
-    for (var serviceLocator in _scope) {
-      if (serviceLocator.isRegistered<T>()) {
-        return serviceLocator.get<T>(
-          instanceName: instanceName,
-          param1: param1,
-          param2: param2,
-        );
-      }
+    if (isRegistered<T>()) {
+      return _diContainer.get<T>(param: param);
     }
     throw Exception(
       "Error: Instance of type $T is not registered within $runtimeType or "
@@ -121,15 +122,11 @@ sealed class BaseDiModule implements IDiModule {
 
   @override
   T? safeGet<T extends Object>({
-    String? instanceName,
-    dynamic param1,
-    dynamic param2,
+    dynamic param,
   }) {
     return isRegistered<T>()
         ? get<T>(
-            instanceName: instanceName,
-            param1: param1,
-            param2: param2,
+            param: param,
           )
         : null;
   }

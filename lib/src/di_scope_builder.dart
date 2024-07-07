@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:take_it/src/di_module/base_di_module.dart';
-import 'package:take_it/src/di_module/i_di_module.dart';
-import 'package:take_it/src/registrar/initializer.dart';
+part of 'di_module/base_di_module.dart';
 
 /// Widget for initializing an instance
 /// of [BaseDiModule].
@@ -21,44 +18,49 @@ class DiScopeBuilder<T extends BaseDiModule> extends StatefulWidget {
   final CreateModule<T> createModule;
 
   @override
-  State<DiScopeBuilder<T>> createState() => _DiScopeBuilderState<T>();
+  State<DiScopeBuilder<T>> createState() => DiScopeBuilderState<T>();
 }
 
-class _DiScopeBuilderState<T extends BaseDiModule>
+@visibleForTesting
+class DiScopeBuilderState<T extends BaseDiModule>
     extends State<DiScopeBuilder<T>> {
-  late final T module;
+  T? module;
   bool isInitialized = false;
-  bool isInitializationLaunched = false;
+  Key uniqueKey = UniqueKey();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!isInitializationLaunched) {
-      isInitializationLaunched = true;
-      module = widget.createModule.call();
-      module.pushScope(
-        () {
-          if (mounted) {
-            setState(() {
-              isInitialized = true;
-            });
-          }
-        },
-        _ParentModuleProvider.of(context)?.module,
-      );
-    }
+    isInitialized = false;
+    module?.dispose();
+    module = widget.createModule.call();
+    module?._pushScope(
+      () {
+        if (mounted) {
+          setState(() {
+            isInitialized = true;
+          });
+        }
+      },
+      _ParentModuleProvider.of(context),
+    );
+
+    uniqueKey = UniqueKey();
+    // module?.updateScope(_ParentModuleProvider.of(context));
   }
 
   @override
   void dispose() {
-    module.popScope();
+    module?._popScope();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return isInitialized
+    final module = this.module;
+    return isInitialized && module != null
         ? _ParentModuleProvider(
+            key: uniqueKey,
             module: module,
 
             /// [Builder] for providing correct context
@@ -77,20 +79,18 @@ typedef ChildBuilder<T> = Widget Function(
 /// Signature of the create module function
 typedef CreateModule<T> = T Function();
 
-class _ParentModuleProvider extends InheritedWidget {
+class _ParentModuleProvider extends InheritedNotifier<BaseDiModule> {
   _ParentModuleProvider({
+    required super.key,
     required this.module,
     required super.child,
-  });
+  }) : super(notifier: module);
 
   final BaseDiModule module;
 
-  static _ParentModuleProvider? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_ParentModuleProvider>();
-  }
-
-  @override
-  bool updateShouldNotify(_ParentModuleProvider oldWidget) {
-    return false;
+  static BaseDiModule? of(BuildContext context) {
+    final result =
+        context.dependOnInheritedWidgetOfExactType<_ParentModuleProvider>();
+    return result?.notifier;
   }
 }

@@ -9,15 +9,15 @@ class BlueDiModule extends DiModule {
   void setup(SyncRegistrar it) {
     it
       ..registerFactory<Decrementer>(
-          create: () => DecrementerImpl(get<BlueValueStorage>()))
+          () => DecrementerImpl(get<BlueValueStorage>()))
       ..registerFactory<Incrementer>(
-          create: () => IncrementerImpl(get<BlueValueStorage>()))
+          () => IncrementerImpl(get<BlueValueStorage>()))
       ..registerSingleton(
           ColorStateManager(
               decrementer: get<Decrementer>(),
               incrementer: get(),
               valueStorage: get<BlueValueStorage>()),
           dispose: (instance) => instance.dispose())
-      ..registerFactory<String>(create: () => "1");
+      ..registerFactory<String>(() => "1");
   }
 }
