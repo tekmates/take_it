@@ -3,8 +3,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:take_it/src/di_container/di_container.dart';
-import 'package:take_it/src/registrar/async_registrar_impl.dart';
-import 'package:take_it/src/registrar/sync_registrar_impl.dart';
 import 'package:take_it/take_it.dart';
 
 part '../di_scope_builder.dart';
@@ -29,9 +27,9 @@ sealed class BaseDiModule extends ChangeNotifier implements IDiModule {
     }
     final module = this;
     if (module is DiModule) {
-      module.setup(SyncRegistrarImpl(_diContainer));
+      module.setup(_diContainer);
     } else if (module is DiModuleAsync) {
-      await module.setup(AsyncRegistrarImpl(_diContainer));
+      await module.setup(_diContainer);
     } else {
       throw Exception(
           "${module.runtimeType} must extend SyncDiModule or AsyncDiModule.");
@@ -48,10 +46,10 @@ sealed class BaseDiModule extends ChangeNotifier implements IDiModule {
     }
     final module = this;
     if (module is DiModule) {
-      module.setup(SyncRegistrarImpl(_diContainer));
+      module.setup(_diContainer);
       _initContinue(query, onInit);
     } else if (module is DiModuleAsync) {
-      module.setup(AsyncRegistrarImpl(_diContainer)).then(
+      module.setup(_diContainer).then(
             (_) => _diContainer.allReady().then(
                   (_) => _initContinue(query, onInit),
                 ),

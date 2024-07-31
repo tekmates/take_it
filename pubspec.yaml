@@ -19,6 +19,7 @@ dev_dependencies:
 
   # For tests only
   get_it: 7.7.0
+  equatable: ^2.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_annotating_with_dynamic
 import 'dart:async';
 
 import 'package:take_it/src/di_container/entity.dart';
@@ -24,9 +25,13 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
   }
 
   @override
+  void registerFactoryParam<T extends Object, P>(CreateFuncParam<T, P> create) {
+    _entities[T] = FactoryParam<T, P>(create);
+  }
+
+  @override
   T registerSingleton<T extends Object>(
     T instance, {
-    String? instanceName,
     DisposeFunc<T>? dispose,
   }) {
     _entities[T] = Singleton<T>(instance);
@@ -39,7 +44,6 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
   @override
   void registerLazySingleton<T extends Object>(
     CreateFunc<T> create, {
-    String? instanceName,
     DisposeFunc<T>? dispose,
   }) {
     _entities[T] = Singleton<T>.lazy(create);
@@ -50,10 +54,10 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
 
   T get<T extends Object>({dynamic param}) {
     if (_entities.containsKey(T)) {
-      return _entities[T]!.getObject() as T;
+      return _entities[T]!.getObject(param) as T;
     }
     if (_parentEntities.containsKey(T)) {
-      return _parentEntities[T]!.getObject() as T;
+      return _parentEntities[T]!.getObject(param) as T;
     }
     throw Exception("Service of type $T not found");
   }
@@ -70,7 +74,6 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
   @override
   void registerSingletonAsync<T extends Object>(
     CreateAsyncFunc<T> create, {
-    String? instanceName,
     DisposeFunc<T>? dispose,
   }) {
     _entities[T] = SingletonAsync<T>(create);
@@ -104,6 +107,7 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
     }
    await reset();
   }
+
 }
 
 class _DisposerWrapper {
