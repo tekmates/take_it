@@ -1,5 +1,6 @@
-![My Company Logo](./logo.png)
 # take_it
+
+![My Company Logo](./logo.png)
 
 `take_it` is a **Scoped Service Locator** with **Constructor Injections** for Dart and Flutter. It helps you manage dependencies in your application in a clean, efficient, and testable manner.
 
