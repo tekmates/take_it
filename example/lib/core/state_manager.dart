@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 abstract class StateManager<T> {
-  T _state;
-
   StateManager(T initialState) : _state = initialState;
+
+  T _state;
 
   final StreamController<T> _stateController = StreamController.broadcast();
 

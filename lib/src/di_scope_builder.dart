@@ -5,9 +5,9 @@ part of 'di_module/base_di_module.dart';
 /// [initializationPlaceholder] need for [Initializer.async]
 class DiScopeBuilder<T extends BaseDiModule> extends StatefulWidget {
   const DiScopeBuilder({
-    required this.builder,
     required this.createModule,
     this.initializationPlaceholder,
+    required this.builder,
     super.key,
   });
 
@@ -31,22 +31,27 @@ class DiScopeBuilderState<T extends BaseDiModule>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    isInitialized = false;
-    module?.dispose();
-    module = widget.createModule.call();
-    module?._pushScope(
-      () {
-        if (mounted) {
-          setState(() {
-            isInitialized = true;
-          });
-        }
-      },
-      _ParentModuleProvider.of(context),
-    );
-
-    uniqueKey = UniqueKey();
-    // module?.updateScope(_ParentModuleProvider.of(context));
+    final newModule = widget.createModule.call();
+    if (module == newModule || (newModule._isInitialized && module == null)) {
+      isInitialized = true;
+      module = newModule;
+      module?._updateScope(_ParentModuleProvider.of(context));
+    } else {
+      isInitialized = false;
+      module?.dispose();
+      module = newModule;
+      module?._pushScope(
+        () {
+          if (mounted) {
+            setState(() {
+              isInitialized = true;
+            });
+          }
+        },
+        _ParentModuleProvider.of(context),
+      );
+      uniqueKey = UniqueKey();
+    }
   }
 
   @override
@@ -74,7 +79,7 @@ class DiScopeBuilderState<T extends BaseDiModule>
 
 /// Signature of the widget builder
 typedef ChildBuilder<T> = Widget Function(
-    BuildContext context, IDiModule scope);
+    BuildContext context, Scope scope);
 
 /// Signature of the create module function
 typedef CreateModule<T> = T Function();

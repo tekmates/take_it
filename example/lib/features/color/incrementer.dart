@@ -7,9 +7,9 @@ abstract interface class Incrementer {
 }
 
 class IncrementerImpl implements Incrementer {
-  final ValueStorage _storage;
-
   IncrementerImpl(this._storage);
+
+  final ValueStorage _storage;
 
   @override
   void increment() {

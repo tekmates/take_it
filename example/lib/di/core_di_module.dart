@@ -6,13 +6,13 @@ class CoreDiModule extends DiModuleAsync {
   @override
   Future<void> setup(AsyncRegistrar it) async {
     debugPrint("di_log start init core");
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(milliseconds: 200));
     debugPrint("di_log delayed init core");
     it
       ..registerSingletonAsync(
         () async {
           debugPrint("di_log registerSingletonAsync");
-          await Future.delayed(Duration(seconds: 5));
+          await Future.delayed(Duration(milliseconds: 200));
           debugPrint("di_log await registerSingletonAsync");
           return RedValueStorage();
         },

@@ -28,12 +28,12 @@ void main() {
         final value = scope.get<_ValueClass1>().value;
         sw.stop();
         log("ComparisonTestFor containers: $containerCount scopeCount: $scopeCount");
-        log('TakeIt 1: ${sw.elapsedMicroseconds}');
+        log('take_it 1: ${sw.elapsedMicroseconds} µs');
         final sw2 = Stopwatch()..start();
         // ignore: unused_local_variable
         final value2 = scope.get<_ValueClass2>().value;
         sw2.stop();
-        log('TakeIt 2: ${sw2.elapsedMicroseconds}');
+        log('take_it 2: ${sw2.elapsedMicroseconds} µs');
         return Text(value);
       },
     );
@@ -45,14 +45,14 @@ void main() {
           // ignore: unused_local_variable
           final value = getIt.get<_ValueClass1>().value;
           sw.stop();
-          log('GetIt 1: ${sw.elapsedMicroseconds}');
+          log('get_it 1: ${sw.elapsedMicroseconds} µs');
         }
         final sw2 = Stopwatch()..start();
         if (getIt.isRegistered<_ValueClass2>()) {
           // ignore: unused_local_variable
           final value2 = getIt.get<_ValueClass2>().value;
           sw2.stop();
-          log('GetIt 2: ${sw2.elapsedMicroseconds}');
+          log('get_it 2: ${sw2.elapsedMicroseconds} µs');
         }
         return Text(value);
       },
@@ -121,8 +121,8 @@ class _ScopeCountVariants extends ValueVariant<(int, int)> {
 }
 
 Widget _wrapWithContainers(Widget widget, int containerCount) {
-  Widget widgetToReturn = widget;
-  for (int i = 0; i < containerCount; i++) {
+  var widgetToReturn = widget;
+  for (var i = 0; i < containerCount; i++) {
     final lastWidget = widgetToReturn;
     widgetToReturn = Container(child: lastWidget);
   }
@@ -133,8 +133,8 @@ Widget _wrapWithEmptyScopes(
   Widget widget,
   int scopesCount,
 ) {
-  Widget widgetToReturn = widget;
-  for (int i = 0; i < scopesCount; i++) {
+  var widgetToReturn = widget;
+  for (var i = 0; i < scopesCount; i++) {
     final lastWidget = widgetToReturn;
     widgetToReturn = DiScopeBuilder(
       createModule: () => _EmptyModule(),
@@ -149,8 +149,8 @@ Widget _wrapWithValueScopes(
   String value,
   int scopesCount,
 ) {
-  Widget widgetToReturn = widget;
-  for (int i = 0; i < scopesCount; i++) {
+  var widgetToReturn = widget;
+  for (var i = 0; i < scopesCount; i++) {
     final lastWidget = widgetToReturn;
     widgetToReturn = DiScopeBuilder(
       createModule: () => _ValueDiModule(value),

@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_annotating_with_dynamic
-abstract interface class IDiModule {
+abstract interface class Scope {
   bool isRegistered<T extends Object>();
 
   T get<T extends Object>({

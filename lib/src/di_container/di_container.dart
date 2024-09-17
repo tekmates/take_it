@@ -21,11 +21,13 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
   void registerFactory<T extends Object>(
     CreateFunc<T> create,
   ) {
+    _checkScope<T>();
     _entities[T] = Factory<T>(create);
   }
 
   @override
   void registerFactoryParam<T extends Object, P>(CreateFuncParam<T, P> create) {
+    _checkScope<T>();
     _entities[T] = FactoryParam<T, P>(create);
   }
 
@@ -34,6 +36,7 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
     T instance, {
     DisposeFunc<T>? dispose,
   }) {
+    _checkScope<T>();
     _entities[T] = Singleton<T>(instance);
     if (dispose != null) {
       _disposers[T] = _DisposerWrapper((instance) => dispose(instance as T));
@@ -46,6 +49,7 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
     CreateFunc<T> create, {
     DisposeFunc<T>? dispose,
   }) {
+    _checkScope<T>();
     _entities[T] = Singleton<T>.lazy(create);
     if (dispose != null) {
       _disposers[T] = _DisposerWrapper((instance) => dispose(instance as T));
@@ -76,6 +80,7 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
     CreateAsyncFunc<T> create, {
     DisposeFunc<T>? dispose,
   }) {
+    _checkScope<T>();
     _entities[T] = SingletonAsync<T>(create);
     if (dispose != null) {
       _disposers[T] = _DisposerWrapper((instance) => dispose(instance as T));
@@ -99,15 +104,19 @@ class DiContainer implements SyncRegistrar, AsyncRegistrar {
     return _entities.containsKey(T) ? true : _parentEntities.containsKey(T);
   }
 
-  Future<void> updateScope(DiContainer? parent) async{
+  Future<void> updateScope(DiContainer? parent) async {
     _parentEntities.clear();
     if (parent != null) {
       _parentEntities.addAll(parent._parentEntities);
       _parentEntities.addAll(parent._entities);
     }
-   await reset();
   }
 
+  void _checkScope<T>() {
+    if (_entities.containsKey(T)) {
+      throw Exception("$T is already registered in current scope");
+    }
+  }
 }
 
 class _DisposerWrapper {

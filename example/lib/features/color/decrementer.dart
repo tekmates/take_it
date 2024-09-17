@@ -7,9 +7,9 @@ abstract interface class Decrementer {
 }
 
 class DecrementerImpl implements Decrementer {
-  final ValueStorage _storage;
-
   DecrementerImpl(this._storage);
+
+  final ValueStorage _storage;
 
   @override
   void decrement() {
