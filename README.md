@@ -8,7 +8,7 @@ dependencies in your application in a clean, efficient, and testable manner.
 ## Overview
 
 This is a lightweight dependency management library that combines the simplicity of the **Service Locator** pattern with
-the flexibility of **Inversion of Control (IoC)**. This hybrid approach allows you to efficiently manage your
+the flexibility of **Inversion of Control (IoC) Containers**. This hybrid approach allows you to efficiently manage your
 application's dependencies while maintaining clean and modular architecture.
 
 ### Key Features:
