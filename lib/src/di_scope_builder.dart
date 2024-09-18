@@ -59,7 +59,7 @@ class DiScopeBuilderState<T extends BaseDiModule>
       module?.dispose();
       module = newModule;
       module?._pushScope(
-            () {
+        () {
           if (mounted) {
             setState(() {
               isInitialized = true;
@@ -85,14 +85,14 @@ class DiScopeBuilderState<T extends BaseDiModule>
     final module = this.module;
     return isInitialized && module != null
         ? _ParentModuleProvider(
-      key: uniqueKey,
-      module: module,
+            key: uniqueKey,
+            module: module,
 
-      /// [Builder] for providing the correct context.
-      child: Builder(builder: (context) {
-        return widget.builder.call(context, module);
-      }),
-    )
+            /// [Builder] for providing the correct context.
+            child: Builder(builder: (context) {
+              return widget.builder.call(context, module);
+            }),
+          )
         : widget.initializationPlaceholder ?? const SizedBox.shrink();
   }
 }
@@ -101,8 +101,7 @@ class DiScopeBuilderState<T extends BaseDiModule>
 ///
 /// This function receives the [BuildContext] and the current [Scope] (module)
 /// and returns a widget that uses the module.
-typedef ChildBuilder<T> = Widget Function(
-    BuildContext context, Scope scope);
+typedef ChildBuilder<T> = Widget Function(BuildContext context, Scope scope);
 
 /// Signature for the function used to create a [BaseDiModule] instance.
 typedef CreateModule<T> = T Function();
@@ -127,7 +126,7 @@ class _ParentModuleProvider extends InheritedNotifier<BaseDiModule> {
   /// the module that it is providing. Returns `null` if no module is found.
   static BaseDiModule? of(BuildContext context) {
     final result =
-    context.dependOnInheritedWidgetOfExactType<_ParentModuleProvider>();
+        context.dependOnInheritedWidgetOfExactType<_ParentModuleProvider>();
     return result?.notifier;
   }
 }
