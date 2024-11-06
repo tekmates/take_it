@@ -30,10 +30,10 @@ void main() {
 
     Widget uut({Key? key}) => MaterialApp(
           key: key,
-          home: DiScopeBuilder<MockParentModule>(
+          home: DiScopeBuilder(
             createModule: () => MockParentModule(),
             builder: (context, scope) {
-              return DiScopeBuilder<MockModule>(
+              return DiScopeBuilder(
                 key: builderKey,
                 createModule: () => module,
                 builder: (context, module) {
@@ -48,7 +48,7 @@ void main() {
 
     var context = tester.element(find.text('DiScopeBuilder Test'));
     var state =
-        context.findAncestorStateOfType<DiScopeBuilderState<MockModule>>()!;
+        context.findAncestorStateOfType<DiScopeBuilderState>()!;
 
     expect(state.module, isNotNull);
     expect(state.module!.get<int>(), count);
@@ -59,7 +59,7 @@ void main() {
     await tester.pumpWidget(uut(key: UniqueKey()));
 
     context = tester.element(find.text('DiScopeBuilder Test'));
-    state = context.findAncestorStateOfType<DiScopeBuilderState<MockModule>>()!;
+    state = context.findAncestorStateOfType<DiScopeBuilderState>()!;
 
     expect(state.module, isNotNull);
     expect(state.module!.get<int>(), count);

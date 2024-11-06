@@ -11,20 +11,21 @@ part of 'di_module/base_di_module.dart';
 /// widget tree.
 ///
 /// - [createModule]: A factory function used to create an instance of the module.
+///    if null, used [EmptyDiModule] to access parent [Scope]
 /// - [builder]: A callback that builds the widget tree using the context and the provided module.
 /// - [initializationPlaceholder]: A widget that is shown while the module is initializing (e.g., for async modules).
 ///
 /// [initializationPlaceholder] is used specifically when dealing with asynchronous modules.
-class DiScopeBuilder<T extends BaseDiModule> extends StatefulWidget {
+class DiScopeBuilder extends StatefulWidget {
   const DiScopeBuilder({
-    required this.createModule,
+    this.createModule,
     this.initializationPlaceholder,
     required this.builder,
     super.key,
   });
 
-  /// A function that creates the DI module instance of type [T].
-  final CreateModule<T> createModule;
+  /// A function that creates the DI module instance of type [BaseDiModule].
+  final CreateModule<BaseDiModule>? createModule;
 
   /// A builder function that takes the current [BuildContext] and the provided [Scope] (the module) to build the UI.
   final ChildBuilder builder;
@@ -33,14 +34,13 @@ class DiScopeBuilder<T extends BaseDiModule> extends StatefulWidget {
   final Widget? initializationPlaceholder;
 
   @override
-  State<DiScopeBuilder<T>> createState() => DiScopeBuilderState<T>();
+  State<StatefulWidget> createState() => DiScopeBuilderState();
 }
 
 /// State class for [DiScopeBuilder], responsible for managing the module's lifecycle.
 @visibleForTesting
-class DiScopeBuilderState<T extends BaseDiModule>
-    extends State<DiScopeBuilder<T>> {
-  T? module;
+class DiScopeBuilderState extends State<DiScopeBuilder> {
+  BaseDiModule? module;
   bool isInitialized = false;
   Key uniqueKey = UniqueKey();
 
@@ -48,7 +48,7 @@ class DiScopeBuilderState<T extends BaseDiModule>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final newModule = widget.createModule.call();
+    final newModule = widget.createModule?.call() ?? EmptyDiModule();
 
     if (module == newModule || (newModule._isInitialized && module == null)) {
       isInitialized = true;
